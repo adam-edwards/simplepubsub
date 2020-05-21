@@ -87,3 +87,12 @@ func (broker *PubSub) Unsubscribe(topic, subKey string) {
   }
   delete(broker.subs, subKey)
 }
+
+// DeleteTopic closes the data channel for each subscriber to the
+// given topic, and then deletes the topic.
+func (broker *PubSub) DeleteTopic(topic) {
+  for _, subKey := range broker.topics[topic] {
+    close(broker.subs[subKey].Data())
+  }
+  delete(broker.topics, topic)
+}
