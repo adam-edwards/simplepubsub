@@ -91,8 +91,20 @@ func (broker *PubSub) Unsubscribe(topic, subKey string) {
 // DeleteTopic closes the data channel for each subscriber to the
 // given topic, and then deletes the topic.
 func (broker *PubSub) DeleteTopic(topic) {
+  broker.Lock()
+  defer broker.Unlock()
+
   for _, subKey := range broker.topics[topic] {
     close(broker.subs[subKey].Data())
   }
   delete(broker.topics, topic)
+}
+
+// TopicExists returns true if the given topic exists
+func (broker *PubSub) TopicExists(topic) bool {
+  broker.RLock()
+  defer broker.RUnlock()
+
+  _, ok := broker.topics[topic]
+  return ok
 }
