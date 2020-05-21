@@ -2,7 +2,6 @@ package simplepubsub
 
 import (
   "sync"
-  "context"
   "fmt"
 
   "github.com/google/uuid"
@@ -10,7 +9,7 @@ import (
 
 // A Subscriber provides a means to send it data.
 type Subscriber interface {
-  Data() <-chan interface{}
+  Data() chan<- interface{}
   SetSubscriptionKey(string)
 }
 
@@ -68,7 +67,7 @@ func (broker *PubSub) Subscribe(topic string, sub Subscriber) {
 
   subKey := uuid.New().String()
   broker.subs[subKey] = sub
-  append(broker.topics[topic], subKey)
+  broker.topics[topic] = append(broker.topics[topic], subKey)
   sub.SetSubscriptionKey(subKey)
 }
 
@@ -90,7 +89,7 @@ func (broker *PubSub) Unsubscribe(topic, subKey string) {
 
 // DeleteTopic closes the data channel for each subscriber to the
 // given topic, and then deletes the topic.
-func (broker *PubSub) DeleteTopic(topic) {
+func (broker *PubSub) DeleteTopic(topic string) {
   broker.Lock()
   defer broker.Unlock()
 
@@ -101,7 +100,7 @@ func (broker *PubSub) DeleteTopic(topic) {
 }
 
 // TopicExists returns true if the given topic exists
-func (broker *PubSub) TopicExists(topic) bool {
+func (broker *PubSub) TopicExists(topic string) bool {
   broker.RLock()
   defer broker.RUnlock()
 
