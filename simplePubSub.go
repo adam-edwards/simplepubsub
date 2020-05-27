@@ -8,6 +8,8 @@ import (
 )
 
 // A Subscriber provides a means to send it data.
+// SetSubscriptionKey must store the returned key in order to be
+// able to Unsibscribe().
 type Subscriber interface {
   Data() chan<- interface{}
   SetSubscriptionKey(string)
